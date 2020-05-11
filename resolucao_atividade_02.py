@@ -1,4 +1,5 @@
 # Exercicio Triangulos
+# Link utilizado para teoria de triangulos
 # https://matematicabasica.net/triangulo/
 
 
