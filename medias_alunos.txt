@@ -1,0 +1,6 @@
+aluno	p1	p2	p3
+Fábio	7	8	2
+Lucas	8	5	8
+Maria	8	9	9
+José	10	2	8
+Fernando	10	10	10
