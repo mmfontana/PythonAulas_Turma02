@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 class Raspador():
 
@@ -25,8 +26,9 @@ class Raspador():
 		nomes = list()
 		autores = list()
 		colocacoes = list()
-		notas_usuarios = list()
+		numeros_avaliacoes = list()
 		precos = list()
+		# Criar parte do raspador para notas usuarios
 
 
 		for i in range(len(soup_paginas)):
@@ -40,30 +42,74 @@ class Raspador():
 				autor = d.find('span', attrs={'class': 'a-size-small a-color-base'})
 				# Colocacao do livro
 				colocacao = d.find('span', attrs={'class': 'zg-badge-text'})
-				# Nota dos usuarios
-				nota_usuarios = d.find('a', attrs={'class': 'a-size-small a-link-normal'})
+				# Numero de avaliacoes
+				numero_avaliacoes = d.find('a', attrs={'class': 'a-size-small a-link-normal'})
 				# Preco do livro
 				preco = d.find('span', attrs={'class': 'p13n-sc-price'})
 
-				
-				# Exercicio: colocar estrutura else para cada if. Passando um string 'nan' para a lista.
 				if nome_in is not None:
 					nomes.append(nome_in[0]['alt'])
+				else:
+					nomes.append('nan')
 				if autor is not None:
 					autores.append(autor.text)
+				else:
+					autores.append('nan')
 				if colocacao is not None:
 					colocacoes.append(colocacao.text)
-				if nota_usuarios is not None:
-					notas_usuarios.append(nota_usuarios.text)
+				else:
+					colocacoes.append('nan')
+				if numero_avaliacoes is not None:
+					numeros_avaliacoes.append(numero_avaliacoes.text)
+				else:
+					numeros_avaliacoes.append('nan')
 				if preco is not None:
 					precos.append(preco.text)
+				else:
+					precos.append('nan')
 
-		dados = [nomes, autores, colocacoes, notas_usuarios, precos]	
+		dados = [nomes, autores, colocacoes, numeros_avaliacoes, precos]	
 
 		return dados
 
+	def cria_dicionario(self, dados):
 
-		# Exercicio: criar metodo para transformar a lista de dados num dicionario estruturado.
-		# def ...
-		# Formato dicionario: dict = {'nomes': nomes, 'autores': autores}
+		dados_df = dict()
 
+		dados_df['nomes'] = dados[0]
+		dados_df['autores'] = dados[1]		
+		dados_df['colocacoes'] = dados[2]
+		dados_df['numero_avaliacoes'] = dados[3]
+		dados_df['precos'] = dados[4]
+
+		return dados_df
+
+	def tratamento_string(self, dados_df):
+
+		for i in range(len(dados_df['colocacoes'])):
+			try:
+				dados_df['colocacoes'][i] = float(dados_df['colocacoes'][i].split('#')[1])
+			except:
+				pass
+
+		for i in range(len(dados_df['numero_avaliacoes'])):
+			try:
+				dados_df['numero_avaliacoes'][i] = float(dados_df['numero_avaliacoes'][i].replace('.',''))
+			except:
+				pass
+
+		for i in range(len(dados_df['precos'])):
+			try:
+				dados_df['precos'][i] = dados_df['precos'][i].split('R$')[1]
+				dados_df['precos'][i] = float(dados_df['precos'][i].replace(',','.'))
+			except:
+				pass
+
+		return dados_df
+
+	def para_pandas(self, dados_df, arquivo):
+
+		df = pd.DataFrame(dados_df)
+		df.to_csv(arquivo)
+
+		return df
