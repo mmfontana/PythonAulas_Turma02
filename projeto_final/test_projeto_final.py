@@ -24,5 +24,6 @@ def test_listas_finais():
 	assert	len(dados_df['colocacoes']) == 100
 	assert	len(dados_df['numero_avaliacoes']) == 100
 	assert	len(dados_df['precos']) == 100
+	assert  len(dados_df['notas']) == 100
 
 

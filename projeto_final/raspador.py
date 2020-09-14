@@ -15,6 +15,7 @@ class Raspador():
 		for i in range(1,self.numero_paginas+1):
 
 			request = requests.get('https://www.amazon.com.br/gp/bestsellers/books/ref=zg_bs_pg_1?ie=UTF8&pg={}'.format(i))
+
 			conteudo = request.content
 			soup = BeautifulSoup(conteudo, features="html.parser")
 			soup_paginas.append(soup)
@@ -28,8 +29,8 @@ class Raspador():
 		colocacoes = list()
 		numeros_avaliacoes = list()
 		precos = list()
-		# Criar parte do raspador para notas usuarios
-
+		notas = list()
+		
 
 		for i in range(len(soup_paginas)):
 
@@ -46,6 +47,8 @@ class Raspador():
 				numero_avaliacoes = d.find('a', attrs={'class': 'a-size-small a-link-normal'})
 				# Preco do livro
 				preco = d.find('span', attrs={'class': 'p13n-sc-price'})
+				# Nota do livro
+				nota = d.find('span', attrs={'class':'a-icon-alt'})
 
 				if nome_in is not None:
 					nomes.append(nome_in[0]['alt'])
@@ -67,8 +70,12 @@ class Raspador():
 					precos.append(preco.text)
 				else:
 					precos.append('nan')
+				if nota is not None:
+					notas.append(nota.text)
+				else:
+					notas.append(nota)
 
-		dados = [nomes, autores, colocacoes, numeros_avaliacoes, precos]	
+		dados = [nomes, autores, colocacoes, numeros_avaliacoes, precos, notas]	
 
 		return dados
 
@@ -81,6 +88,7 @@ class Raspador():
 		dados_df['colocacoes'] = dados[2]
 		dados_df['numero_avaliacoes'] = dados[3]
 		dados_df['precos'] = dados[4]
+		dados_df['notas'] = dados[5]
 
 		return dados_df
 
@@ -102,6 +110,13 @@ class Raspador():
 			try:
 				dados_df['precos'][i] = dados_df['precos'][i].split('R$')[1]
 				dados_df['precos'][i] = float(dados_df['precos'][i].replace(',','.'))
+			except:
+				pass
+
+		for i in range(len(dados_df['notas'])):
+			try:
+				dados_df['notas'][i] = dados_df['notas'][i].split(' de 5 estrelas')[0] 
+				dados_df['notas'][i] = float(dados_df['notas'][i].replace(',','.'))
 			except:
 				pass
 
